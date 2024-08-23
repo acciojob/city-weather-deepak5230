@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./../styles/App.css";
 import axios from "axios";
-import "regenerator-runtime/runtime";
+
 const App = () => {
   const [city, setCity] = useState("");
   const [input, setInput] = useState("");
@@ -9,12 +9,13 @@ const App = () => {
   const [error, setError] = useState("");
 
   const apiKey = "4deb9dcaf8bafa8ecfe2be9e9c7d02ca";
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`;
 
   const fetchApi = async () => {
+    if (city.trim() === "") return; // Prevent API call if city is empty
+
     try {
       const response = await axios.get(url);
-       //console.log(response.data);
       setWeather(response.data);
       setError("");
     } catch (error) {
@@ -25,16 +26,14 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchApi();
-    console.log("called fetchAPI");
-   // return () => console.log("cleanup");
+    if (city) fetchApi();
   }, [city]);
 
   const handleChange = (e) => {
     setInput(e.target.value);
   };
 
-  const display = () => {
+  const handleSearch = () => {
     setCity(input);
     setInput("");
   };
@@ -42,8 +41,13 @@ const App = () => {
   return (
     <div className="main" id="main">
       <div className="search">
-        <input type="text" value={input} onChange={handleChange} />
-        <button onClick={display}>Search</button>
+        <input
+          type="text"
+          value={input}
+          onChange={handleChange}
+          placeholder="Enter city"
+        />
+        <button onClick={handleSearch}>Search</button>
       </div>
       <div className="weather">
         {error && <h2>{error}</h2>}
@@ -54,7 +58,7 @@ const App = () => {
             <h3>{weather.weather[0].description}</h3>
             <img
               src={`http://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
-              alt="cloud image"
+              alt="weather icon"
             />
           </>
         )}
