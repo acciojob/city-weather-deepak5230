@@ -11,10 +11,12 @@ const App = () => {
   const apiKey = "4deb9dcaf8bafa8ecfe2be9e9c7d02ca";
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
 
+
   const fetchApi = async () => {
+    if (!city.trim()) return; // Prevent API call if city is empty
+
     try {
       const response = await axios.get(url);
-       //console.log(response.data);
       setWeather(response.data);
       setError("");
     } catch (error) {
@@ -25,9 +27,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchApi();
-    console.log("called fetchAPI");
-   // return () => console.log("cleanup");
+    if (city) {
+      fetchApi();
+    }
   }, [city]);
 
   const handleChange = (e) => {
@@ -35,8 +37,10 @@ const App = () => {
   };
 
   const display = () => {
-    setCity(input);
-    setInput("");
+    if (input.trim()) {
+      setCity(input);
+      setInput(""); // Clear the input field after setting the city
+    }
   };
 
   return (
