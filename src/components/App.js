@@ -1,77 +1,60 @@
-// src/App.js
-import "regenerator-runtime/runtime"; // Add this import at the top
-import React, { useEffect, useState } from "react";
-import "./../styles/App.css";
-import axios from "axios";
+import 'regenerator-runtime/runtime';
+
+import React,{useState,useEffect } from "react";
+import './../styles/App.css';
 
 const App = () => {
   const [city, setCity] = useState("");
-  const [input, setInput] = useState("");
+  const [search, setSearch] = useState("");
   const [weather, setWeather] = useState({});
   const [error, setError] = useState("");
 
-  const apiKey = "4deb9dcaf8bafa8ecfe2be9e9c7d02ca";
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`; // Added units=imperial to get temperature in Fahrenheit
-
-  const fetchApi = async () => {
-    if (!city.trim()) return; // Prevent API call if city is empty
-
-    try {
-      const response = await axios.get(url);
-      setWeather(response.data);
-      setError("");
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-      setError("Error fetching data. Please try again.");
-      setWeather({});
-    }
-  };
-
   useEffect(() => {
-    if (city) {
-      fetchApi();
-    }
-  }, [city]);
+  const fetchApi = async () => {
+    const url = "https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=2d19741fec5e1ebbce4e4b02007b3734";
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          setError('City not found');
+          throw new Error('City not found');
+          
+        }
+        setError('')
+        return response.json();
+      })
+      .then(data => setWeather(data))
+      .catch(error => setWeather({error: error.message}));
+  }
+  fetchApi();
+}, [city]);
 
-  const handleChange = (e) => {
-    setInput(e.target.value);
-  };
-
-  const display = () => {
-    if (input.trim()) {
-      setCity(input);
-      setInput(""); // Clear the input field after setting the city
-    }
-  };
-
+  
+  function display(){
+    setCity(search)
+  }
+   
   return (
     <div className="main" id="main">
       <div className="search">
-        <input
-          type="text"
-          value={input}
-          onChange={handleChange}
-          placeholder="Enter city" // Added placeholder for clarity
-        />
+        <input type="text" placeholder="Enter a city" onChange={(e)=>setSearch(e.target.value)}/>
         <button onClick={display}>Search</button>
       </div>
       <div className="weather">
-        {error && <h2>{error}</h2>}
-        {!error && weather.main && (
+        { error && 
+          <h2>{error}</h2>
+        }
+        { weather.main && 
           <>
             <h1>{city}</h1>
-            <h2>{weather.main.temp}°F</h2>
+            <h2>{weather.main.temp}°Cel</h2>
             <h3>{weather.weather[0].description}</h3>
-            <img
-              src={`http://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
-              alt="weather icon"
-            />
+            <img src={`http://openweathermap.org/img/w/${weather.weather[0].icon}.png`} alt="cloud image"/>
           </>
-        )}
-      </div>
+        }
+      </div> 
     </div>
-  );
-};
+  )
+  
+}
 
-export default App;
-
+export default App
